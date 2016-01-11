@@ -5,7 +5,7 @@ Plugin Name: WP REST Api Extras
 
 Description:  Adds extra WP REST Api calls
 
-Version:  0.1
+Version:  0.2
 
 Author: Jan-Louis Crafford, Afrozaar Consulting
 
