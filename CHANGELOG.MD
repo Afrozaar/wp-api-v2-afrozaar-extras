@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3
+- added a Setings page to enable or disable the custom tags
+
 ## 0.2
 - added HTML **script** to allowed tags in Post body
 
