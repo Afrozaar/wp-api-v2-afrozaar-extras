@@ -1,6 +1,11 @@
 # wp-api-v2-afrozaar-extras
 Adds additional WP REST Api calls and configuration changes that are needed by Mobile apps.
-This plugin extends the **[WP REST Api](https://github.com/WP-API)** plugin for WordPress.
+This plugin extends the **[WP REST Api](https://github.com/WP-API/WP-API)** plugin for WordPress.
+
+## Installation
+
+Copy this folder into your WordPress plugins directory and activate it throught the Plugins manager on WP-ADMIN.
+Requires the WP REST API to be installed and active to work properly.
 
 ## Features
 **WIP: All calls and features are in developement and might change drastically or removed completely**
