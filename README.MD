@@ -10,6 +10,11 @@ Requires the WP REST API to be installed and active to work properly.
 ## Features
 **WIP: All calls and features are in developement and might change drastically or removed completely**
 
+### Settings
+From version 0.3, there is a Settings (WP-ADMIN-->Settings-->Afrozaar Options) page for the module that can be used for any required configuration. At the moment it has a checkbox to allow you to enable or disable the &lt;script&gt; tag in a Post body.
+
+This page was added as a test more than anything else and is very basic at the moment.
+
 ### New API calls:
 1. Get a user by username<br />
   Used to retrieve basic user information for an already created WP user.
@@ -57,7 +62,8 @@ Requires the WP REST API to be installed and active to work properly.
   By default, WP does not allow **script** tags to be included in a Post body (for good reason).
   We currently need that to be allowed to be able to use JWPlayer to show videos.
 
-  This option is hardcoded in the plugin source but future plans is to make this customizable and/or just have the ability to turn this option off.
+  ~~This option is hardcoded in the plugin source but future plans is to make this customizable and/or just have the ability to turn this option off.~~<br />
+  There is now a Settings page for the plugin that allows you to turn this setting on or off.
 
 ## License  
 
