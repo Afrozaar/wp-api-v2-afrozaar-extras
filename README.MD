@@ -58,3 +58,7 @@ Requires the WP REST API to be installed and active to work properly.
   We currently need that to be allowed to be able to use JWPlayer to show videos.
 
   This option is hardcoded in the plugin source but future plans is to make this customizable and/or just have the ability to turn this option off.
+
+## License  
+
+[Apache License v2](http://www.apache.org/licenses/LICENSE-2.0)
