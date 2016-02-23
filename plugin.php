@@ -157,3 +157,15 @@ add_filter('rest_query_vars', 'baobab_allow_meta_query');
 
 register_activation_hook(__FILE__, 'set_afrozaar_options');
 register_deactivation_hook(__FILE__, 'unset_afrozaar_options');
+
+// Adds JWPlayer to header to allow post videos
+// TODO make this customizable in Settings
+function jwplayer_header() {
+  ?>
+  <script type="text/javascript" src="http://content.jwplatform.com/libraries/JPCZ6UQS.js"></script>
+  <?php
+}
+
+add_action('wp_head', 'jwplayer_header');
+
+ ?>

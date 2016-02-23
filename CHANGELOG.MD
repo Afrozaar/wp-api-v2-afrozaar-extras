@@ -4,6 +4,7 @@
 - Add custom meta keys used in filtering.
 
 ## 0.4
+- added JWPlayer script tags to headers
 
 ## 0.3
 - added a Setings page to enable or disable the custom tags
