@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7
+- Updated retrieve user call to return if user is an admin.
+
 ## 0.6
 - Added REST call to retrieve user using email address.
 

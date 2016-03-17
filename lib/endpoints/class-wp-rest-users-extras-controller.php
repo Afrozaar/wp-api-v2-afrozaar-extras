@@ -53,6 +53,14 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response Response data.
 	 */
 	public function prepare_item_for_response( $user, $request ) {
+
+    $roles = $user->roles;
+    if ( empty($roles)) {
+      $isadmin = false;
+    } else {
+      $isadmin = hash_equals($roles[0], 'administrator');
+    }
+
 		$data = array(
 			'id'                 => $user->ID,
 			'username'           => $user->user_login,
@@ -68,6 +76,7 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
 			//'slug'               => $user->user_nicename,
 			//'registered_date'    => date( 'c', strtotime( $user->user_registered ) ),
 			//'roles'              => $user->roles,
+      'admin'              => $isadmin,
 			//'capabilities'       => $user->allcaps,
 			//'extra_capabilities' => $user->caps,
 		);
