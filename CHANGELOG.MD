@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6
+- Added REST call to retrieve user using email address.
+
 ## 0.5
 - Add custom meta keys used in filtering.
 
