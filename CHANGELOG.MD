@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8
+- Fixed typo in username variable
+
 ## 0.7
 - Updated retrieve user call to return if user is an admin.
 

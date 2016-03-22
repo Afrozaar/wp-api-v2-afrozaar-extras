@@ -35,7 +35,7 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
       $user = get_user_by('email', $email);
     }
 
-    if ((empty($usernam) && (empty($email)) || empty($user->user_login))) {
+    if ((empty($username) && (empty($email)) || empty($user->user_login))) {
       return new WP_Error( 'rest_user_invalid_username', __( 'Invalid user name.' ), array( 'status' => 404 ) );
     }
 
