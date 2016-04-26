@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9
+- Added caption to media call
+
 ## 0.8
 - Fixed typo in username variable
 

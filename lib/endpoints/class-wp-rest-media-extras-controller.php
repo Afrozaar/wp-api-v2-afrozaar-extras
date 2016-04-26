@@ -23,23 +23,14 @@
 
     $query_result = get_attached_media( $type, $id );
 
-    $posts = array();
-    foreach ( $query_result as $post ) {
-			$data = $this->prepare_item_for_response( $post, $request );
-			$posts[] = $this->prepare_response_for_collection( $data );
-		}
-
-    $response = rest_ensure_response( $posts );
-    return $response;
-
-    /*$medias = array();
-		foreach ( $query->results as $media ) {
+    $medias = array();
+    foreach ( $query_result as $media ) {
 			$data = $this->prepare_item_for_response( $media, $request );
 			$medias[] = $this->prepare_response_for_collection( $data );
 		}
 
-    return $medias;*/
-
+    $response = rest_ensure_response( $medias );
+    return $response;
   }
 
   /**
@@ -53,6 +44,7 @@
 		$data = array(
 			'id'                 => $media->ID,
       'guid'               => $media->guid,
+      'caption'            => $media->caption,
 			//'username'           => $user->user_login,
 			//'name'               => $user->display_name,
 			//'first_name'         => $user->first_name,

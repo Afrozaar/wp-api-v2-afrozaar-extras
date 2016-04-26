@@ -39,7 +39,17 @@ This page was added as a test more than anything else and is very basic at the m
   "data":{"status":404}}
   ~~~~
 
-2. Retrieve all media items for a post<br/>
+2. Get a user using an email address<br />
+  Works exactly like the call above, just uses an email addres to fetch the user details
+  - HTTP Method: **GET**
+  ~~~~
+  /users/email/<email_addr>
+  email_addr: WP user email address
+  ~~~~
+  The response is the same as **no. 1** above.
+
+
+3. Retrieve all media items for a post<br/>
   The standard WP REST API does not support getting all media items linked to a post. This call allows you to get media attached to a specific post.
   - HTTP Method: **GET**
   ~~~~
@@ -47,11 +57,11 @@ This page was added as a test more than anything else and is very basic at the m
   id: The post id
   type: MIME type of media, eg. image or audio
   ~~~~
-  - Returns the media id and guid of all media items found as a JSON array:
+  - Returns the media id, guid and caption of all media items found as a JSON array:
   ~~~~
   [
-  { "id":12, "guid":"http://path/to/file.jpg" },
-  { "id":13, "guid":"http://another/file.jpg" }
+  { "id":12, "guid":"http://path/to/file.jpg", "Nice image caption" },
+  { "id":13, "guid":"http://another/file.jpg", "More caption" }
   ]
   ~~~~
   - Currently returns an empty array if no media items where found.
