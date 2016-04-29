@@ -66,17 +66,16 @@ This page was added as a test more than anything else and is very basic at the m
   ~~~~
   - Currently returns an empty array if no media items where found.
 
-4. Get number of pages for posts
-  By default there isn't an easy way of getting the number of posts on the site. This call gets the page counts for the 3 main post state type (publish, draft & private).
-  A page consits of 10 posts by default.
+4. Get number of posts
+  This call gets the post counts for the 3 main post state type (publish, draft & private).
   - HTTP Method: **GET**
   ~~~~
-  /posts/pages
+  /posts/counts
   ~~~~
-  - Returns a JSON object with page counts:
+  - Returns a JSON object with post counts:
   ~~~~
   {
-    "publish":"1","draft":0,"privatePub":0
+    "publish":"10","draft":1,"privatePub":0
   }  
   ~~~~
 

@@ -7,7 +7,7 @@
       $version = '2';
       $namespace = 'wp/v' . $version;
 
-        register_rest_route( $namespace, '/posts/pages', array(
+        register_rest_route( $namespace, '/posts/counts', array(
     			'methods'         => WP_REST_Server::READABLE,
     			'callback'        => array( $this, 'get_item' ),
     			'args'            => array(
@@ -18,25 +18,24 @@
     }
 
     public function get_item( $request ) {
+      $count_posts = wp_count_posts();
 
-      $count_pages = wp_count_posts('page');
-
-      $response = $this->prepare_item_for_response($count_pages);
+      $response = $this->prepare_item_for_response($count_posts);
 
       return $response;
     }
 
     /**
-  	 * Prepares post pages counts for response
+  	 * Prepares post counts for response
   	 *
-  	 * @param object $pages Pages count object.
+  	 * @param object $posts Post counts object.
   	 * @return WP_REST_Response Response data.
   	 */
-  	public function prepare_item_for_response( $pages ) {
+  	public function prepare_item_for_response( $posts ) {
       $data = array(
-            'publish'     => $pages->publish,
-            'draft'       => $pages->draft,
-            'privatePub'  => $pages->private,
+            'publish'     => $posts->publish,
+            'draft'       => $posts->draft,
+            'privatePub'  => $posts->private,
           );
 
       $response = rest_ensure_response( $data );
