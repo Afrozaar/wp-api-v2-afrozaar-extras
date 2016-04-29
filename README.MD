@@ -77,8 +77,8 @@ This page was added as a test more than anything else and is very basic at the m
   ~~~~
   {
     "publish":"1","draft":0,"privatePub":0
-  }
-  ~~~~  
+  }  
+  ~~~~
 
 ### Configuration changes
 
