@@ -40,7 +40,7 @@ This page was added as a test more than anything else and is very basic at the m
   ~~~~
 
 2. Get a user using an email address<br />
-  Works exactly like the call above, just uses an email addres to fetch the user details
+  Works exactly like the call above, just uses an email address to fetch the user details
   - HTTP Method: **GET**
   ~~~~
   /users/email/<email_addr>
@@ -57,14 +57,28 @@ This page was added as a test more than anything else and is very basic at the m
   id: The post id
   type: MIME type of media, eg. image or audio
   ~~~~
-  - Returns the media id, guid and caption of all media items found as a JSON array:
+  - Returns the media id, source_url and caption of all media items found as a JSON array:
   ~~~~
   [
-  { "id":12, "guid":"http://path/to/file.jpg", "Nice image caption" },
-  { "id":13, "guid":"http://another/file.jpg", "More caption" }
+  { "id":12, "source_url":"http://path/to/file.jpg", "Nice image caption" },
+  { "id":13, "source_url":"http://another/file.jpg", "More caption" }
   ]
   ~~~~
   - Currently returns an empty array if no media items where found.
+
+4. Get number of pages for posts
+  By default there isn't an easy way of getting the number of posts on the site. This call gets the page counts for the 3 main post state type (publish, draft & private).
+  A page consits of 10 posts by default.
+  - HTTP Method: **GET**
+  ~~~~
+  /posts/pages
+  ~~~~
+  - Returns a JSON object with page counts:
+  ~~~~
+  {
+    "publish":"1","draft":0,"privatePub":0
+  }
+  ~~~~  
 
 ### Configuration changes
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.10
+- Added post page counts call
+
 ## 0.9
 - Added caption to media call
 
