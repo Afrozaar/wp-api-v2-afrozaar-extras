@@ -25,7 +25,10 @@
 
     $medias = array();
     foreach ( $query_result as $media ) {
-			$data = $this->prepare_item_for_response( $media, $request );
+
+      $mediaItem = json_decode(get_data(rest_url('wp/v2/media/' . $media->ID)));
+
+			$data = $this->prepare_item_for_response( $mediaItem, $request );
 			$medias[] = $this->prepare_response_for_collection( $data );
 		}
 
@@ -41,10 +44,12 @@
 	 * @return WP_REST_Response Response data.
 	 */
 	public function prepare_item_for_response( $media, $request ) {
+
 		$data = array(
-			'id'                 => $media->ID,
-      'guid'               => $media->guid,
+			'id'                 => $media->id,
+      'source_url'         => $media->source_url,
       'caption'            => $media->caption,
+      'media_type'         => $media->media_type,
 			//'username'           => $user->user_login,
 			//'name'               => $user->display_name,
 			//'first_name'         => $user->first_name,

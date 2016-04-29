@@ -3,7 +3,7 @@
   /*
   * Plugin Name: WP REST Api Extras
   * Description:  Adds extra WP REST Api calls
-  * Version:  0.9
+  * Version:  0.10
   * Author: Jan-Louis Crafford, Afrozaar Consulting
   * Plugin URI: https://github.com/Afrozaar/wp-api-v2-afrozaar-extras
   */
@@ -18,6 +18,7 @@ if (!is_plugin_active('rest-api/plugin.php')) {
 
 require_once dirname(__FILE__).'/lib/endpoints/class-wp-rest-users-extras-controller.php';
 require_once dirname(__FILE__).'/lib/endpoints/class-wp-rest-media-extras-controller.php';
+require_once dirname(__FILE__).'/lib/endpoints/class-wp-rest-posts-extras-controller.php';
 
 add_action('rest_api_init', function () {
   // Users extras.
@@ -26,6 +27,10 @@ add_action('rest_api_init', function () {
 
   // Media extras
   $controller = new WP_REST_Media_Extras_Controller();
+  $controller->register_routes();
+
+  // Posts extras
+  $controller = new WP_REST_Posts_Extras_Controller();
   $controller->register_routes();
 });
 
@@ -167,5 +172,17 @@ function jwplayer_header() {
 }
 
 add_action('wp_head', 'jwplayer_header');
+
+
+function get_data($url) {
+  $ch = curl_init();
+  $timeout = 5;
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+  $data = curl_exec($ch);
+  curl_close($ch);
+  return $data;
+}
 
  ?>
