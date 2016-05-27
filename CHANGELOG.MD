@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.11
+- Added **class** and **download** to <a> tags
+
 ## 0.10
 - Added post counts call
 
