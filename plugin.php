@@ -156,20 +156,6 @@ if (!CUSTOM_TAGS) {
     }
 }
 
-// BAOBAB INGESTOR CONFIG
-
-/*
-* meta keys are not available by default, we need this to interact with the site to set custom fields.
-*/
-function baobab_allow_meta_query($valid_vars)
-{
-    $valid_vars = array_merge($valid_vars, array('meta_key', 'meta_value', 'meta_compare'));
-
-    return $valid_vars;
-}
-add_filter('rest_query_vars', 'baobab_allow_meta_query');
-// BAOBAB BACKEND CONFIG END
-
 register_activation_hook(__FILE__, 'set_afrozaar_options');
 register_deactivation_hook(__FILE__, 'unset_afrozaar_options');
 
