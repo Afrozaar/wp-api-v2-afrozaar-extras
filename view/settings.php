@@ -46,14 +46,14 @@ define( 'DBI_AWS_SECRET_ACCESS_KEY', '****************************************' 
 				</tr>
 
 				<tr valign="top">
-					<th width="33%" scope="row"><?php _e( 'New post Topic:', 'afrozaar_extras' ); ?></th>
+					<th width="33%" scope="row"><?php _e( 'New post Topic ARN:', 'afrozaar_extras' ); ?></th>
 					<td>
 						<input type="text" name="new_post_topic" value="<?php echo $this->get_new_post_topic() // xss ok; ?>" size="50" autocomplete="off" />
 					</td>
 				</tr>
 
 				<tr valign="top">
-					<th width="33%" scope="row"><?php _e( 'Updated post Topic:', 'afrozaar_extras' ); ?></th>
+					<th width="33%" scope="row"><?php _e( 'Updated post Topic ARN:', 'afrozaar_extras' ); ?></th>
 					<td>
 						<input type="text" name="updated_post_topic" value="<?php echo $this->get_updated_post_topic() // xss ok; ?>" size="50" autocomplete="off" />
 					</td>

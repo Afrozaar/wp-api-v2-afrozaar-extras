@@ -198,36 +198,4 @@ function afrozaar_aws_required_files() {
   require_once $abspath . '/aws/aws-autoloader.php';
 }
 
-
-add_action('publish_post', 'amazon_sns_hook', 10, 2);
-
-function amazon_sns_hook($post_id, $post) {
-
-  // Checks whether is post updated or published at first time.
-  if ($post->post_date != $post->post_modified) {
-    error_log("awe this is a updated post");
-  } else {
-    error_log("awe this is a new post");
-  }
-
-  //predefined access variables
-	$snsClient = SnsClient::factory(array(
-		'key'    => "AKIAIZX5ESP26NSEQZWA",
-		'secret' => "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",
-		'region' => "eu-west-1",
-	));
-
-	try {
-    $result = $snsClient->publish(array(
-  		'TopicArn' => "arn:aws:sns:eu-west-1:358035155708:az-mojoreporter-dev",
-  		// Message is required
-  		'Message' => "postId:$post_id, title:$post->post_title",
-  		'Subject' => "Hallo!"
-  	));
-  } catch (Exception $e) {
-    error_log("===== got the exception from publish call : " . $e->getMessage());
-  }
-}
-
-
  ?>
