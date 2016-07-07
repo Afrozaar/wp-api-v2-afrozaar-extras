@@ -1,4 +1,5 @@
 <?php
+use Aws\Sns\SnsClient;
 
 class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
@@ -53,6 +54,8 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		add_filter( 'plugin_action_links', array( $this, 'plugin_actions_settings_link' ), 10, 2);
 
 		//load_plugin_textdomain( 'amazon-web-services', false, dirname( plugin_basename( $plugin_file_path ) ) . '/languages/' );
+
+		add_action('publish_post', array( $this, 'amazon_sns_hook' ), 10, 2);
 	}
 
 	function admin_menu() {
@@ -112,7 +115,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		// Make sure $this->settings has been loaded
 		$this->get_settings();
 
-		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region' );
+		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic' );
 		foreach ( $post_vars as $var ) {
 			if ( ! isset( $_POST[ $var ] ) ) { // input var okay
 				continue;
@@ -135,7 +138,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	 */
 	function render_page() {
 		$view       = 'settings';
-		$page_title = __( 'Afrozaar Extras', 'afrozaar-extras' );
+		$page_title = __( 'Afrozaar AWS Extras', 'afrozaar-extras' );
 
 		if ( empty( $_GET['page'] ) ) { // input var okay
 			// Not sure why we'd ever end up here, but just in case
@@ -213,6 +216,14 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return $this->get_setting( 'aws_region' );
 	}
 
+	function get_new_post_topic() {
+		return $this->get_setting( 'new_post_topic' );
+	}
+
+	function get_updated_post_topic() {
+		return $this->get_setting( 'updated_post_topic' );
+	}
+
 	/**
 	 * Instantiate a new AWS service client for the AWS SDK
 	 * using the defined AWS key and secret
@@ -250,38 +261,49 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return __( 'Afrozaar Setup', 'afrozaar-extras' );
 	}
 
+	//add_action('publish_post', 'amazon_sns_hook', 10, 2);
 
+	function amazon_sns_hook($post_id, $post) {
 
+	  // Checks whether is post updated or published at first time.
+	  if ($post->post_date != $post->post_modified) {
+	    error_log("awe this is a updated post");
 
+	    $topic_arn = $this->get_updated_post_topic();
 
+	  } else {
+	    error_log("awe this is a new post");
 
+	    $topic_arn = $this->get_new_post_topic();
+	  }
 
+		if ( ! $this->get_access_key_id() || ! $this->get_secret_access_key() ) {
+			return new WP_Error( 'access_keys_missing', sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this addon.', 'amazon-web-services' ), 'admin.php?page=' . $this->plugin_slug ) ); // xss ok
+		}
 
+		if ( is_null( $this->client ) ) {
+			$args = array();
 
+			$args = array(
+				'key'    => $this->get_access_key_id(),
+				'secret' => $this->get_secret_access_key(),
+				'region' => $this->get_aws_region(),
+			);
 
+			$args         = apply_filters( 'aws_get_client_args', $args );
 
+			$this->client = SnsClient::factory( $args );
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		try {
+	    $result = $this->client->publish(array(
+	  		'TopicArn' => $topic_arn,
+	  		// Message is required
+	  		'Message' => "postId:$post_id, title:$post->post_title",
+	  		'Subject' => "Hallo!"
+	  	));
+	  } catch (Exception $e) {
+	    error_log("===== got the exception from publish call : " . $e->getMessage());
+	  }
+	}
 }
