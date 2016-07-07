@@ -3,12 +3,12 @@
   /*
   * Plugin Name: WP REST Api Extras
   * Description:  Adds extra WP REST Api calls
-  * Version:  0.12
+  * Version:  0.13-TEST
   * Author: Jan-Louis Crafford, Afrozaar Consulting
   * Plugin URI: https://github.com/Afrozaar/wp-api-v2-afrozaar-extras
   */
 
-  include_once ABSPATH.'wp-admin/includes/plugin.php';
+include_once ABSPATH.'wp-admin/includes/plugin.php';
 
 if (!is_plugin_active('rest-api/plugin.php')) {
     add_action('admin_notices', 'pim_draw_notice_rest_api');
@@ -169,7 +169,6 @@ function jwplayer_header() {
 
 add_action('wp_head', 'jwplayer_header');
 
-
 function get_data($url) {
   $ch = curl_init();
   $timeout = 5;
@@ -180,5 +179,55 @@ function get_data($url) {
   curl_close($ch);
   return $data;
 }
+
+
+// AWS STUFFS
+
+add_action( 'init', 'afrozaar_aws_init' );
+
+function afrozaar_aws_init() {
+  afrozaar_aws_required_files();
+  global $afrozaar_aws;
+  $afrozaar_aws = new Afrozaar_Aws_Extras( __FILE__ );
+}
+
+function afrozaar_aws_required_files() {
+  $abspath = dirname( __FILE__ );
+  require_once $abspath . '/classes/afro-plugin-base.php';
+  require_once $abspath . '/classes/afrozaar-extras.php';
+  require_once $abspath . '/aws/aws-autoloader.php';
+}
+
+
+add_action('publish_post', 'amazon_sns_hook', 10, 2);
+
+function amazon_sns_hook($post_id, $post) {
+
+  // Checks whether is post updated or published at first time.
+  if ($post->post_date != $post->post_modified) {
+    error_log("awe this is a updated post");
+  } else {
+    error_log("awe this is a new post");
+  }
+
+  //predefined access variables
+	$snsClient = SnsClient::factory(array(
+		'key'    => "AKIAIZX5ESP26NSEQZWA",
+		'secret' => "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",
+		'region' => "eu-west-1",
+	));
+
+	try {
+    $result = $snsClient->publish(array(
+  		'TopicArn' => "arn:aws:sns:eu-west-1:358035155708:az-mojoreporter-dev",
+  		// Message is required
+  		'Message' => "postId:$post_id, title:$post->post_title",
+  		'Subject' => "Hallo!"
+  	));
+  } catch (Exception $e) {
+    error_log("===== got the exception from publish call : " . $e->getMessage());
+  }
+}
+
 
  ?>
