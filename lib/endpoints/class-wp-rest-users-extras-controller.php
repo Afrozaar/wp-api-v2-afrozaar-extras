@@ -15,6 +15,7 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
   			),
   			'schema' => array( $this, 'get_public_item_schema' ),
   		));
+
       register_rest_route( $namespace, '/users/email/(?P<email>[\S-]+)', array(
         'methods'       => WP_REST_Server::READABLE,
         'callback'      => array( $this, 'get_item_username' ),
@@ -39,7 +40,27 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
       return new WP_Error( 'rest_user_invalid_username', __( 'Invalid user name.' ), array( 'status' => 404 ) );
     }
 
+    $user_id = $user->ID;
+    $user_blogs = get_blogs_of_user($user_id);
+
+    $is_valid_for_site = false;
+    foreach ($user_blogs AS $user_blog) {
+      $blog_name = $user_blog->siteurl;
+
+      //error_log("=================== siteurl ".$blog_name);
+      if (strpos($blog_name, $_SERVER['SERVER_NAME']) !== false) {
+        //error_log("=================== siteurl is valid!!!!!!");
+        $is_valid_for_site = true;
+        break;
+      }
+    }
+
+    if ($is_valid_for_site == false) {
+      return new WP_Error( 'rest_user_invalid_site', __( 'User not allowed for site.'), array( 'status' => 404 ) );
+    }
+
 		$user = $this->prepare_item_for_response( $user, $request );
+
 		$response = rest_ensure_response( $user );
 
 		return $response;
@@ -61,6 +82,11 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
       $isadmin = hash_equals($roles[0], 'administrator');
     }
 
+    $user_id = $user->ID;
+    $user_blogs = get_blogs_of_user($user_id);
+
+    $site = urldecode($request['site']);
+
 		$data = array(
 			'id'                 => $user->ID,
 			'username'           => $user->user_login,
@@ -79,6 +105,9 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
       'admin'              => $isadmin,
 			//'capabilities'       => $user->allcaps,
 			//'extra_capabilities' => $user->caps,
+      'site'                => $_SERVER['SERVER_NAME'],
+      'host'                => $_SERVER['HTTP_HOST'],
+      'blogs'               => $user_blogs,
 		);
 
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'embed';
@@ -100,7 +129,6 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
 		 */
 		return apply_filters( 'rest_prepare_user', $response, $user, $request );
 	}
-
 }
 
 
