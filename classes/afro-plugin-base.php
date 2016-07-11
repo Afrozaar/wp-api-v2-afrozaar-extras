@@ -2,13 +2,13 @@
 
 
 class Afro_Plugin_Base {
-	
+
 	protected $plugin_file_path;
 	protected $plugin_dir_path;
 	protected $plugin_slug;
 	protected $plugin_basename;
 	protected $plugin_version;
-	
+
 	/**
 	 * @var array
 	 */
@@ -80,7 +80,8 @@ class Afro_Plugin_Base {
 	 */
 	function get_settings( $force = false ) {
 		if ( is_null( $this->settings ) || $force ) {
-			$this->settings = $this->filter_settings( get_site_option( static::SETTINGS_KEY ) );
+			//$this->settings = $this->filter_settings( get_site_option( static::SETTINGS_KEY ) );
+			$this->settings = $this->filter_settings( get_option( static::SETTINGS_KEY ) );
 		}
 
 		return $this->settings;
@@ -259,7 +260,8 @@ class Afro_Plugin_Base {
 	 * Save the settings to the database
 	 */
 	function save_settings() {
-		update_site_option( static::SETTINGS_KEY, $this->settings );
+		//update_site_option( static::SETTINGS_KEY, $this->settings );
+		update_option( static::SETTINGS_KEY, $this->settings );
 	}
 
 	/**
@@ -321,6 +323,3 @@ class Afro_Plugin_Base {
 		return defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 	}
 }
-	
-
-

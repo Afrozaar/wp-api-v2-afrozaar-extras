@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.14
+- Added Amazon AWS/SNS support to send push notifications to apps
+
 ## 0.11
 - Added **class** and **download** to <a> tags
 

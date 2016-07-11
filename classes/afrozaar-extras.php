@@ -40,13 +40,13 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		//	do_action( 'aws_admin_init', $this );
 		//}
 
-		if ( is_multisite() ) {
-			add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
-			$this->plugin_permission = 'manage_network_options';
-		} else {
+		//if ( is_multisite() ) {
+		//	add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
+		//	$this->plugin_permission = 'manage_network_options';
+		//} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			$this->plugin_permission = 'manage_options';
-		}
+		//}
 
 		$this->plugin_title	= __( 'Afrozaar Extras', 'afrozaar-extras' );
 		$this->plugin_menu_title = __( ' Afrozaar Extras', 'afrozaar-extras' );
@@ -270,11 +270,13 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	    error_log("awe this is a updated post");
 
 	    $topic_arn = $this->get_updated_post_topic();
+			$is_new_post = false;
 
 	  } else {
 	    error_log("awe this is a new post");
 
 	    $topic_arn = $this->get_new_post_topic();
+			$is_new_post = true;
 	  }
 
 		if ( ! $this->get_access_key_id() || ! $this->get_secret_access_key() ) {
@@ -295,11 +297,23 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			$this->client = SnsClient::factory( $args );
 		}
 
+		$user = get_userdata( $post->post_author );
+
+		$message_json = array(
+			'postId'		=>		$post_id,
+			'title'			=>		$post->post_title,
+			'author'		=>		$user->display_name,
+			'newPost'		=>		$is_new_post,
+		);
+
+		$message = json_encode($message_json);
+
 		try {
 	    $result = $this->client->publish(array(
 	  		'TopicArn' => $topic_arn,
 	  		// Message is required
-	  		'Message' => "postId:$post_id, title:$post->post_title",
+	  		//'Message' => "postId:$post_id, title:$post->post_title",
+				'Message' => $message,
 	  		'Subject' => "Hallo!"
 	  	));
 	  } catch (Exception $e) {
