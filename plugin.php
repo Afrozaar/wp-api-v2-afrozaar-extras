@@ -3,7 +3,7 @@
   /*
   * Plugin Name: WP REST Api Extras
   * Description:  Adds extra WP REST Api calls
-  * Version:  0.13-TEST
+  * Version:  0.14
   * Author: Jan-Louis Crafford, Afrozaar Consulting
   * Plugin URI: https://github.com/Afrozaar/wp-api-v2-afrozaar-extras
   */
