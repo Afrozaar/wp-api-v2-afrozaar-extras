@@ -123,7 +123,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 			$value = sanitize_text_field( $_POST[ $var ] ); // input var okay
 
-			if ( 'secret_access_key' == $var && '-- not shown --' == $value ) {
+			if ( 'secret_access_key' == $var && '-- HIDDEN --' == $value ) {
 				continue;
 			}
 
@@ -303,6 +303,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			'postId'		=>		$post_id,
 			'title'			=>		$post->post_title,
 			'author'		=>		$user->display_name,
+			'authorId'	=>		$user->ID,
 			'newPost'		=>		$is_new_post,
 		);
 

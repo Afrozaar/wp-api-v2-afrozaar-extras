@@ -26,10 +26,12 @@
     $medias = array();
     foreach ( $query_result as $media ) {
 
-      $mediaItem = json_decode(get_data(rest_url('wp/v2/media/' . $media->ID)));
+      //$mediaItem = json_decode(get_data(rest_url('wp/v2/media/' . $media->ID)));
 
-			$data = $this->prepare_item_for_response( $mediaItem, $request );
+			$data = $this->prepare_item_for_response( $media, $request );
 			$medias[] = $this->prepare_response_for_collection( $data );
+
+      //$medias[] = $data;
 		}
 
     $response = rest_ensure_response( $medias );
@@ -46,10 +48,10 @@
 	public function prepare_item_for_response( $media, $request ) {
 
 		$data = array(
-			'id'                 => $media->id,
-      'source_url'         => $media->source_url,
-      'caption'            => $media->caption,
-      'media_type'         => $media->media_type,
+			'id'                 => $media->ID,
+      'caption'            => $media->post_excerpt,
+      'media_type'         => $media->post_mime_type,
+      'source_url'         => wp_get_attachment_url( $media->ID ),
 			//'username'           => $user->user_login,
 			//'name'               => $user->display_name,
 			//'first_name'         => $user->first_name,
@@ -86,9 +88,5 @@
 		 */
 		return apply_filters( 'rest_prepare_media', $response, $media, $request );
 	}
-
-
-
-
   }
  ?>

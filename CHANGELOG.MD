@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17
+- Updated media info call
+
+## 0.16
+- Added custom post call for use with Stream
+- Removed unused post counts call
+
+## 0.15
+- Added authorId to push message json
+- Added check to not overwrite secret_access_key
+
 ## 0.14
 - Added Amazon AWS/SNS support to send push notifications to apps
 
