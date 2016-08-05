@@ -267,14 +267,10 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 	  // Checks whether is post updated or published at first time.
 	  if ($post->post_date != $post->post_modified) {
-	    error_log("awe this is a updated post");
-
 	    $topic_arn = $this->get_updated_post_topic();
 			$is_new_post = false;
 
 	  } else {
-	    error_log("awe this is a new post");
-
 	    $topic_arn = $this->get_new_post_topic();
 			$is_new_post = true;
 	  }
@@ -307,15 +303,29 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			'newPost'		=>		$is_new_post,
 		);
 
-		$message = json_encode($message_json);
+		if ($is_new_post) {
+			$message_type = '(N)';
+			$bool_val = 'true';
+		} else {
+			$message_type = '(U)';
+			$bool_val = 'false';
+		}
+
+		$alert = $message_type . ' ' . $user->display_name . ' : ' . $post->post_title;
+
+		$msg_encoded = '\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
+
+		$message = '{
+			"default": "{' . $msg_encoded . '}",
+			"APNS": "{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}",
+			"APNS_SANDBOX":"{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}"
+		}';
 
 		try {
 	    $result = $this->client->publish(array(
 	  		'TopicArn' => $topic_arn,
-	  		// Message is required
-	  		//'Message' => "postId:$post_id, title:$post->post_title",
 				'Message' => $message,
-	  		'Subject' => "Hallo!"
+				'MessageStructure' => 'json',
 	  	));
 	  } catch (Exception $e) {
 	    error_log("===== got the exception from publish call : " . $e->getMessage());

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.18
+- Updated SNS publish call to support Apple specific data
+
 ## 0.17
 - Updated media info call
 

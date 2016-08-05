@@ -83,6 +83,10 @@
   			$data['date'] = $this->prepare_date_response( $post->post_date_gmt, $post->post_date );
   		}
 
+      if ( ! empty( $schema['properties']['modified'] ) ) {
+  			$data['modified'] = $this->prepare_date_response( $post->post_modified_gmt, $post->post_modified );
+  		}
+
       if ( ! empty( $schema['properties']['title'] ) ) {
   			$data['title'] = $post->post_title;
   		}
