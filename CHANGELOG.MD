@@ -1,4 +1,6 @@
 # Changelog
+## 0.19
+- Updated stream call to add related post info
 
 ## 0.18
 - Updated SNS publish call to support Apple specific data
