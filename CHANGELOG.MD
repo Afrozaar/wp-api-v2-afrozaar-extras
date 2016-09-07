@@ -1,4 +1,8 @@
 # Changelog
+
+## 0.20
+- Fixed bug in post pages causing divide by zero error in output
+
 ## 0.19
 - Updated stream call to add related post info
 

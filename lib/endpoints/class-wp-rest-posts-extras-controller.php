@@ -85,6 +85,10 @@
         $total_posts = $count_query->found_posts;
       }
 
+      if (! isset( $query_args['posts_per_page'] ) ) {
+        $query_args['posts_per_page'] = 10;
+      }
+
       $max_pages = ceil( $total_posts / (int) $query_args['posts_per_page'] );
 
       $response = rest_ensure_response( $posts );
