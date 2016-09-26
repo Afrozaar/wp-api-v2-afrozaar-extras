@@ -103,6 +103,7 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
 			//'registered_date'    => date( 'c', strtotime( $user->user_registered ) ),
 			//'roles'              => $user->roles,
       'admin'              => $isadmin,
+      'role'               => $roles[0],
 			//'capabilities'       => $user->allcaps,
 			//'extra_capabilities' => $user->caps,
       'site'                => $_SERVER['SERVER_NAME'],

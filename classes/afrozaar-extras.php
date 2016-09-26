@@ -55,7 +55,9 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 		//load_plugin_textdomain( 'amazon-web-services', false, dirname( plugin_basename( $plugin_file_path ) ) . '/languages/' );
 
-		add_action('publish_post', array( $this, 'amazon_sns_hook' ), 10, 2);
+		add_action('publish_post', array( $this, 'hook_publish_post' ), 10, 2);
+
+		add_action('comment_post', array( $this, 'hook_comment_post' ), 10, 2);
 	}
 
 	function admin_menu() {
@@ -261,9 +263,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return __( 'Afrozaar Setup', 'afrozaar-extras' );
 	}
 
-	//add_action('publish_post', 'amazon_sns_hook', 10, 2);
-
-	function amazon_sns_hook($post_id, $post) {
+	function hook_publish_post($post_id, $post) {
 
 	  // Checks whether is post updated or published at first time.
 	  if ($post->post_date != $post->post_modified) {
@@ -279,6 +279,62 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			return new WP_Error( 'access_keys_missing', sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this addon.', 'amazon-web-services' ), 'admin.php?page=' . $this->plugin_slug ) ); // xss ok
 		}
 
+/*
+
+		$message_json = array(
+			'postId'		=>		$post_id,
+			'title'			=>		$post->post_title,
+			'author'		=>		$user->display_name,
+			'authorId'	=>		$user->ID,
+			'newPost'		=>		$is_new_post,
+		);
+*/
+
+		$user = get_userdata( $post->post_author );
+
+		if ($is_new_post) {
+			$message_type = '(N)';
+			$bool_val = 'true';
+		} else {
+			$message_type = '(U)';
+			$bool_val = 'false';
+		}
+
+		$alert = $message_type . ' ' . $user->display_name . ' : ' . $post->post_title;
+
+		$msg_encoded = '\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
+
+		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
+	}
+
+	function hook_comment_post($comment_id, $comment_approved) {
+			error_log('this is a error log on the comment hook');
+
+			if( 1 === $comment_approved ) {
+				$comment = get_comment( $comment_id );
+
+				if ( empty( $comment ) ) {
+					//return new WP_Error( 'rest_comment_invalid_id', __( 'Invalid comment id.' ), array( 'status' => 404 ) );
+					error_log('============================= empty comment for id ' . $comment_id);
+					return;
+				}
+
+				$msg_encoded = '\"msgType\":comment,\"postId\":' . $comment->comment_post_ID . ',\"authorId\":' . $comment->user_id . ',\"text\":' . $comment->comment_content . '';
+				$alert = "bla";
+
+				$topic_arn_comment = 'arn:aws:sns:eu-west-1:840066320465:wp-kmtv-mojo-test-comment';
+
+				$this->amazonSnsPush($alert, $msg_encoded, $topic_arn_comment);
+    	}
+	}
+
+	function amazonSnsPush($alert, $msg_encoded, $topic_arn) {
+		$message = '{
+			"default": "{' . $msg_encoded . '}",
+			"APNS": "{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}",
+			"APNS_SANDBOX":"{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}"
+		}';
+
 		if ( is_null( $this->client ) ) {
 			$args = array();
 
@@ -293,42 +349,14 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			$this->client = SnsClient::factory( $args );
 		}
 
-		$user = get_userdata( $post->post_author );
-
-		$message_json = array(
-			'postId'		=>		$post_id,
-			'title'			=>		$post->post_title,
-			'author'		=>		$user->display_name,
-			'authorId'	=>		$user->ID,
-			'newPost'		=>		$is_new_post,
-		);
-
-		if ($is_new_post) {
-			$message_type = '(N)';
-			$bool_val = 'true';
-		} else {
-			$message_type = '(U)';
-			$bool_val = 'false';
-		}
-
-		$alert = $message_type . ' ' . $user->display_name . ' : ' . $post->post_title;
-
-		$msg_encoded = '\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
-
-		$message = '{
-			"default": "{' . $msg_encoded . '}",
-			"APNS": "{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}",
-			"APNS_SANDBOX":"{\"aps\":{\"alert\": \"' . $alert . '\"}, \"custom\":{' . $msg_encoded . '}}"
-		}';
-
 		try {
-	    $result = $this->client->publish(array(
-	  		'TopicArn' => $topic_arn,
+			$result = $this->client->publish(array(
+				'TopicArn' => $topic_arn,
 				'Message' => $message,
 				'MessageStructure' => 'json',
-	  	));
-	  } catch (Exception $e) {
-	    error_log("===== got the exception from publish call : " . $e->getMessage());
-	  }
+			));
+		} catch (Exception $e) {
+			error_log("===== got the exception from publish call : " . $e->getMessage());
+		}
 	}
 }

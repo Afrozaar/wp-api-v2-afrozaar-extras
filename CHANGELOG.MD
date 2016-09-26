@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.21
+- Added role field to custom user calls
+
 ## 0.20
 - Fixed bug in post pages causing divide by zero error in output
 
