@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.22
+- Updated AWS classes to latest version
+- New comment hook and SNS config
+
 ## 0.21
 - Added role field to custom user calls
 

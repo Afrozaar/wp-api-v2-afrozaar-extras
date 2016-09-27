@@ -27,6 +27,14 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	const SETTINGS_CONSTANT = 'AFRO_SETTINGS';
 
 	/**
+	* Constants for the Push Message types
+	*/
+	const PUSH_TYPE_POST_NEW = 'POST_NEW';
+	const PUSH_TYPE_POST_UPDATED = 'POST_UPDATED';
+	const PUSH_TYPE_CHAT_MSG = 'CHAT_MSG';
+	const PUSH_TYPE_COMMENT = 'COMMENT';
+
+	/**
 	* @param string $plugin_file_path
 	*/
 	function __construct( $plugin_file_path ) {
@@ -117,7 +125,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		// Make sure $this->settings has been loaded
 		$this->get_settings();
 
-		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic' );
+		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic', 'comment_post_topic' );
 		foreach ( $post_vars as $var ) {
 			if ( ! isset( $_POST[ $var ] ) ) { // input var okay
 				continue;
@@ -226,6 +234,10 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return $this->get_setting( 'updated_post_topic' );
 	}
 
+	function get_comment_post_topic() {
+		return $this->get_setting( 'comment_post_topic' );
+	}
+
 	/**
 	 * Instantiate a new AWS service client for the AWS SDK
 	 * using the defined AWS key and secret
@@ -269,26 +281,16 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	  if ($post->post_date != $post->post_modified) {
 	    $topic_arn = $this->get_updated_post_topic();
 			$is_new_post = false;
-
+			$push_type = self::PUSH_TYPE_POST_UPDATED;
 	  } else {
 	    $topic_arn = $this->get_new_post_topic();
 			$is_new_post = true;
+			$push_type = self::PUSH_TYPE_POST_NEW;
 	  }
 
 		if ( ! $this->get_access_key_id() || ! $this->get_secret_access_key() ) {
 			return new WP_Error( 'access_keys_missing', sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this addon.', 'amazon-web-services' ), 'admin.php?page=' . $this->plugin_slug ) ); // xss ok
 		}
-
-/*
-
-		$message_json = array(
-			'postId'		=>		$post_id,
-			'title'			=>		$post->post_title,
-			'author'		=>		$user->display_name,
-			'authorId'	=>		$user->ID,
-			'newPost'		=>		$is_new_post,
-		);
-*/
 
 		$user = get_userdata( $post->post_author );
 
@@ -302,7 +304,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 		$alert = $message_type . ' ' . $user->display_name . ' : ' . $post->post_title;
 
-		$msg_encoded = '\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
+		$msg_encoded = '\"msgType\":\"' . $push_type . '\",\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
 
 		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
 	}
@@ -319,10 +321,13 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 					return;
 				}
 
-				$msg_encoded = '\"msgType\":comment,\"postId\":' . $comment->comment_post_ID . ',\"authorId\":' . $comment->user_id . ',\"text\":' . $comment->comment_content . '';
-				$alert = "bla";
+				$topic_arn_comment = $this->get_comment_post_topic();
 
-				$topic_arn_comment = 'arn:aws:sns:eu-west-1:840066320465:wp-kmtv-mojo-test-comment';
+				$post = get_post( $comment->comment_post_ID );
+				$user = get_userdata( $post->post_author );
+
+				$msg_encoded = '\"msgType\":\"' . self::PUSH_TYPE_COMMENT . '\",\"postId\":' . $comment->comment_post_ID . ',\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"msgText\":\"' . $comment->comment_content . '\"';
+				$alert = "bla";
 
 				$this->amazonSnsPush($alert, $msg_encoded, $topic_arn_comment);
     	}
@@ -339,9 +344,15 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 			$args = array();
 
 			$args = array(
-				'key'    => $this->get_access_key_id(),
-				'secret' => $this->get_secret_access_key(),
+				//'key'    => $this->get_access_key_id(),
+				//'secret' => $this->get_secret_access_key(),
 				'region' => $this->get_aws_region(),
+				//'version' => 'latest',
+				'version' => '2010-03-31',
+				'credentials' => [
+        	'key'    => $this->get_access_key_id(),
+        	'secret' => $this->get_secret_access_key(),
+    		]
 			);
 
 			$args         = apply_filters( 'aws_get_client_args', $args );
@@ -358,5 +369,16 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		} catch (Exception $e) {
 			error_log("===== got the exception from publish call : " . $e->getMessage());
 		}
+	}
+
+	function getTopicNameFromArn($topic_arn) {
+
+		// Topics format as follow:
+		// arn:aws:sns:eu-west-1:840066320465:wp-kmtv-mojo-test-comment
+		// 0  : 1 : 2 : 3       : 4          : 5
+
+		$topic_parts = explode(":", $topic_arn);
+
+		return $topic_parts[5];
 	}
 }

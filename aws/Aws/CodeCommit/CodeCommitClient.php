@@ -1,57 +1,40 @@
 <?php
-
 namespace Aws\CodeCommit;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
+use Aws\AwsClient;
 
 /**
- * Client to interact with AWS CodeCommit
+ * This client is used to interact with the **AWS CodeCommit** service.
  *
- * @method Model batchGetRepositories(array $args = array()) {@command CodeCommit BatchGetRepositories}
- * @method Model createBranch(array $args = array()) {@command CodeCommit CreateBranch}
- * @method Model createRepository(array $args = array()) {@command CodeCommit CreateRepository}
- * @method Model deleteRepository(array $args = array()) {@command CodeCommit DeleteRepository}
- * @method Model getBranch(array $args = array()) {@command CodeCommit GetBranch}
- * @method Model getRepository(array $args = array()) {@command CodeCommit GetRepository}
- * @method Model listBranches(array $args = array()) {@command CodeCommit ListBranches}
- * @method Model listRepositories(array $args = array()) {@command CodeCommit ListRepositories}
- * @method Model updateDefaultBranch(array $args = array()) {@command CodeCommit UpdateDefaultBranch}
- * @method Model updateRepositoryDescription(array $args = array()) {@command CodeCommit UpdateRepositoryDescription}
- * @method Model updateRepositoryName(array $args = array()) {@command CodeCommit UpdateRepositoryName}
- * @method ResourceIteratorInterface getListBranchesIterator(array $args = array()) The input array uses the parameters of the ListBranches operation
- * @method ResourceIteratorInterface getListRepositoriesIterator(array $args = array()) The input array uses the parameters of the ListRepositories operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-codecommit.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CodeCommit.CodeCommitClient.html API docs
+ * @method \Aws\Result batchGetRepositories(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetRepositoriesAsync(array $args = [])
+ * @method \Aws\Result createBranch(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createBranchAsync(array $args = [])
+ * @method \Aws\Result createRepository(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createRepositoryAsync(array $args = [])
+ * @method \Aws\Result deleteRepository(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRepositoryAsync(array $args = [])
+ * @method \Aws\Result getBranch(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getBranchAsync(array $args = [])
+ * @method \Aws\Result getCommit(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getCommitAsync(array $args = [])
+ * @method \Aws\Result getRepository(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getRepositoryAsync(array $args = [])
+ * @method \Aws\Result getRepositoryTriggers(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getRepositoryTriggersAsync(array $args = [])
+ * @method \Aws\Result listBranches(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listBranchesAsync(array $args = [])
+ * @method \Aws\Result listRepositories(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listRepositoriesAsync(array $args = [])
+ * @method \Aws\Result putRepositoryTriggers(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putRepositoryTriggersAsync(array $args = [])
+ * @method \Aws\Result testRepositoryTriggers(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise testRepositoryTriggersAsync(array $args = [])
+ * @method \Aws\Result updateDefaultBranch(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateDefaultBranchAsync(array $args = [])
+ * @method \Aws\Result updateRepositoryDescription(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateRepositoryDescriptionAsync(array $args = [])
+ * @method \Aws\Result updateRepositoryName(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateRepositoryNameAsync(array $args = [])
  */
-class CodeCommitClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2015-04-13';
-
-    /**
-     * Factory method to create a new AWS CodeCommit client using an array of configuration options.
-     *
-     * See http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/codecommit-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser())
-            ->build();
-    }
-}
+class CodeCommitClient extends AwsClient {}

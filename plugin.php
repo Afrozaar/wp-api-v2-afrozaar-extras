@@ -3,7 +3,7 @@
   /*
   * Plugin Name: WP REST Api Extras
   * Description:  Adds extra WP REST Api calls
-  * Version:  0.21
+  * Version:  0.22
   * Author: Jan-Louis Crafford, Afrozaar Consulting
   * Plugin URI: https://github.com/Afrozaar/wp-api-v2-afrozaar-extras
   */
@@ -161,13 +161,13 @@ register_deactivation_hook(__FILE__, 'unset_afrozaar_options');
 
 // Adds JWPlayer to header to allow post videos
 // TODO make this customizable in Settings
-function jwplayer_header() {
+/*function jwplayer_header() {
   ?>
   <script type="text/javascript" src="http://content.jwplatform.com/libraries/JPCZ6UQS.js"></script>
   <?php
-}
+}*/
 
-add_action('wp_head', 'jwplayer_header');
+//add_action('wp_head', 'jwplayer_header');
 
 function get_data($url) {
   $ch = curl_init();
