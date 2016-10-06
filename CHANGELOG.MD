@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23
+- Updated Stream call to include Comments for post
+
 ## 0.22
 - Updated AWS classes to latest version
 - New comment hook and SNS config

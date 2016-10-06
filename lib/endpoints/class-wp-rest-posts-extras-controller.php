@@ -181,6 +181,31 @@
         }
   		}
 
+      // GET comments
+
+      $prepared_args = array(
+        'post__in'        => $data['id'],
+      );
+
+      //$prepared_args = apply_filters( 'rest_comment_query', $prepared_args, $request );
+
+      $query = new WP_Comment_Query;
+      $query_result = $query->query( $prepared_args );
+
+      $comments = array();
+      foreach ( $query_result as $comment ) {
+        if ( ! $this->check_read_permission( $comment ) ) {
+          continue;
+        }
+
+        $comment_data = $this->prepare_comment_item_for_response( $comment, $request );
+        $comments[] = $this->prepare_response_for_collection( $comment_data );
+      }
+
+      //if ( !empty( $comments ) ) {
+          $data['comments'] = $comments;
+      //}
+
       // Wrap the data in a response object.
   		$response = rest_ensure_response( $data );
 
@@ -196,6 +221,92 @@
   		 */
   		return apply_filters( "rest_prepare_{$this->post_type}", $response, $post, $request );
     }
+
+    /**
+  	 * Prepare a single comment output for response.
+  	 *
+  	 * @param  object          $comment Comment object.
+  	 * @param  WP_REST_Request $request Request object.
+  	 * @return WP_REST_Response $response
+  	 */
+  	public function prepare_comment_item_for_response( $comment, $request ) {
+  		$data = array(
+  			'id'                 => (int) $comment->comment_ID,
+  			//'post'               => (int) $comment->comment_post_ID,
+  			'parent'             => (int) $comment->comment_parent,
+  			'author'             => (int) $comment->user_id,
+  			'author_name'        => $comment->comment_author,
+  			//'author_email'       => $comment->comment_author_email,
+  			//'author_url'         => $comment->comment_author_url,
+  			//'author_ip'          => $comment->comment_author_IP,
+  			//'author_user_agent'  => $comment->comment_agent,
+  			'date'               => mysql_to_rfc3339( $comment->comment_date ),
+  			'date_gmt'           => mysql_to_rfc3339( $comment->comment_date_gmt ),
+  			'content'            => array(
+  				//'rendered' => apply_filters( 'comment_text', $comment->comment_content, $comment ),
+  				'raw'      => $comment->comment_content,
+  			),
+  			//'karma'              => (int) $comment->comment_karma,
+  			//'link'               => get_comment_link( $comment ),
+  			'status'             => $this->prepare_status_response( $comment->comment_approved ),
+  			//'type'               => get_comment_type( $comment->comment_ID ),
+  		);
+
+  		$schema = $this->get_item_schema();
+
+  		//if ( ! empty( $schema['properties']['author_avatar_urls'] ) ) {
+  		//	$data['author_avatar_urls'] = rest_get_avatar_urls( $comment->comment_author_email );
+  		//}
+
+  		//$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
+  		//$data = $this->add_additional_fields_to_object( $data, $request );
+  		//$data = $this->filter_response_by_context( $data, $context );
+
+  		// Wrap the data in a response object
+  		$response = rest_ensure_response( $data );
+
+  		//$response->add_links( $this->prepare_links( $comment ) );
+
+  		/**
+  		 * Filter a comment returned from the API.
+  		 *
+  		 * Allows modification of the comment right before it is returned.
+  		 *
+  		 * @param WP_REST_Response  $response   The response object.
+  		 * @param object            $comment    The original comment object.
+  		 * @param WP_REST_Request   $request    Request used to generate the response.
+  		 */
+  		return apply_filters( 'rest_prepare_comment', $response, $comment, $request );
+  	}
+
+    /**
+  	 * Check comment_approved to set comment status for single comment output.
+  	 *
+  	 * @param  string|int $comment_approved
+  	 * @return string     $status
+  	 */
+  	protected function prepare_status_response( $comment_approved ) {
+
+  		switch ( $comment_approved ) {
+  			case 'hold':
+  			case '0':
+  				$status = 'hold';
+  				break;
+
+  			case 'approve':
+  			case '1':
+  				$status = 'approved';
+  				break;
+
+  			case 'spam':
+  			case 'trash':
+  			default:
+  				$status = $comment_approved;
+  				break;
+  		}
+
+  		return $status;
+  	}
 
     /**
   	 * Check if a given request has access to read /posts.
