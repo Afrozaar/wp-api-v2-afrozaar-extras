@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.24
+- Added logic to add user to site if user already exists on another multi site
+
 ## 0.23
 - Updated Stream call to include Comments for post
 
