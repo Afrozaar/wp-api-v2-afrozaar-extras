@@ -1,5 +1,6 @@
 <?php
 use Aws\Sns\SnsClient;
+use Aws\DynamoDb\Exception\DynamoDbException;
 
 class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
@@ -22,6 +23,8 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	 * @var
 	 */
 	private $client;
+
+	private $dynamoDb;
 
 	const SETTINGS_KEY  = 'afro_settings';
 	const SETTINGS_CONSTANT = 'AFRO_SETTINGS';
@@ -65,7 +68,14 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 		add_action('publish_post', array( $this, 'hook_publish_post' ), 10, 2);
 
+		add_action('draft_post', array( $this, 'hook_draft_post' ), 10, 2);
+
 		add_action('comment_post', array( $this, 'hook_comment_post' ), 10, 2);
+
+		add_action( 'wp_trash_post', array( $this, 'hook_trash_post' ), 10, 2);
+
+		add_action('deleted_post_meta', array( $this, 'hook_delete_meta_data' ), 10, 4);
+
 	}
 
 	function admin_menu() {
@@ -125,7 +135,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		// Make sure $this->settings has been loaded
 		$this->get_settings();
 
-		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic', 'comment_post_topic' );
+		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic', 'comment_post_topic', 'mojo_site' );
 		foreach ( $post_vars as $var ) {
 			if ( ! isset( $_POST[ $var ] ) ) { // input var okay
 				continue;
@@ -238,6 +248,10 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return $this->get_setting( 'comment_post_topic' );
 	}
 
+	function get_mojo_site() {
+		return $this->get_setting( 'mojo_site' );
+	}
+
 	/**
 	 * Instantiate a new AWS service client for the AWS SDK
 	 * using the defined AWS key and secret
@@ -275,6 +289,9 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return __( 'Afrozaar Setup', 'afrozaar-extras' );
 	}
 
+	/**
+	* Code to run when a Post gets published
+	*/
 	function hook_publish_post($post_id, $post) {
 
 	  // Checks whether is post updated or published at first time.
@@ -307,17 +324,144 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		$msg_encoded = '\"msgType\":\"' . $push_type . '\",\"postId\":' . $post_id . ',\"title\":\"' . $post->post_title . '\",\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"newPost\":' . $bool_val . '';
 
 		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
+
+		$this->amazon_add_map_marker( $post_id, $post->post_date, $post->post_title, $user->display_name );
 	}
 
+	/**
+	* Code to run when a Post status is marked as Draft
+	*/
+	function hook_draft_post( $post_id, $post ) {
+
+		//error_log('============================== this is a error log on the DRAFT POST HOOK');
+
+		$location_meta = get_post_meta($post_id, 'az_address', true);
+
+		if (!empty($location_meta)) {
+			$this->amazon_remove_map_marker($post_id);
+		}
+	}
+
+	/**
+	* Code to run when a Post gets tras
+	*/
+	function hook_trash_post( $post_id ) {
+
+		//error_log('============================== this is a error log on the TRASH POST HOOK');
+
+		$location_meta = get_post_meta($post_id, 'az_address', true);
+
+		if (!empty($location_meta)) {
+			$this->amazon_remove_map_marker($post_id);
+		}
+	}
+
+/**
+* Runs when meta objects get deleted. If meta object is location, remove post marker from AW
+*/
+	function hook_delete_meta_data( $deleted_meta_ids, $post_id, $meta_key, $only_delete_these_meta_values ) {
+
+			if ( $meta_key == 'az_address' ) {
+				//error_log('==========-------------------------- DELETE ADDRESS META');
+
+				$this->amazon_remove_map_marker($post_id);
+			}
+	}
+
+	/**
+	* Creates a new DB entry on DynamoDB for a post marker
+	*/
+	function amazon_add_map_marker( $post_id, $post_date, $post_title, $author_name) {
+		$location_meta = get_post_meta($post_id, 'az_address', true);
+
+		try {
+			if ( !empty($location_meta) ) {
+					$location_lat = get_post_meta($post_id, 'az_latitude', true);
+					$location_long = get_post_meta($post_id, 'az_longitude', true);
+
+					if ( is_null($this->dynamoDb) ) {
+						$sdk = new Aws\Sdk([
+							'region' => $this->get_aws_region(),
+							'version' => 'latest',
+							'credentials' => [
+								'key'    => $this->get_access_key_id(),
+								'secret' => $this->get_secret_access_key(),
+							],
+						]);
+
+							$dynamoDb = $sdk->createDynamoDb();
+					}
+
+					$tableName = 'mojo-map-posts';
+					$timestamp = strtotime($post_date);
+
+					$response = $dynamoDb->putItem([
+						'TableName' => $tableName,
+						'Item' => [
+							'mojoSite' => ['S' => $this->get_mojo_site() ],
+							'postId' => ['N' => $post_id . '' ],
+							'authorName' => ['S' => $author_name ],
+							'postTitle' => ['S' => $post_title ],
+							'latitude' => ['N' => $location_lat . '' ],
+							'longitude' => ['N' => $location_long . '' ],
+							'dateCreated' => ['N' => $timestamp . '' ],
+						],
+					]);
+			}
+		} catch (Exception $e) {
+			error_log("Unable to upload map post marker to DynamoDB " . $e->getMessage());
+		}
+	}
+
+	/**
+	* Removes a DB entry on DynamoDB for a post marker
+	*/
+	function amazon_remove_map_marker( $post_id ) {
+
+		//error_log('============================== this is a error log on the REMOVE MAP MARKER');
+
+		try {
+			if ( is_null($this->dynamoDb) ) {
+				$sdk = new Aws\Sdk([
+					'region' => $this->get_aws_region(),
+					'version' => 'latest',
+					'credentials' => [
+						'key'    => $this->get_access_key_id(),
+						'secret' => $this->get_secret_access_key(),
+					],
+				]);
+
+					$dynamoDb = $sdk->createDynamoDb();
+			}
+
+			$tableName = 'mojo-map-posts';
+
+			$response = $dynamoDb->deleteItem ( [
+				'TableName' => $tableName,
+	    	'Key' => [
+					'mojoSite' => ['S' => $this->get_mojo_site() ],
+					'postId' => ['N' => $post_id . '' ],
+	    	],
+	    	'ReturnValues' => 'ALL_OLD'
+			]);
+
+		} catch(Exception $e) {
+			error_log("Unable to remove map post marker from DynamoDB " . $e->getMessage());
+		}
+	}
+
+	/**
+	* Sends an SNS push when making a new comment
+	*/
 	function hook_comment_post($comment_id, $comment_approved) {
-			error_log('this is a error log on the comment hook');
+			//error_log('this is a error log on the comment hook');
 
 			if( 1 === $comment_approved ) {
 				$comment = get_comment( $comment_id );
 
 				if ( empty( $comment ) ) {
 					//return new WP_Error( 'rest_comment_invalid_id', __( 'Invalid comment id.' ), array( 'status' => 404 ) );
-					error_log('============================= empty comment for id ' . $comment_id);
+					//error_log('============================= empty comment for id ' . $comment_id);
 					return;
 				}
 
@@ -333,6 +477,9 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
     	}
 	}
 
+	/**
+	* Creates and sends SNS push
+	*/
 	function amazonSnsPush($alert, $msg_encoded, $topic_arn) {
 		$message = '{
 			"default": "{' . $msg_encoded . '}",
@@ -371,6 +518,9 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		}
 	}
 
+	/**
+	* Gets Topic name from ARN 
+	*/
 	function getTopicNameFromArn($topic_arn) {
 
 		// Topics format as follow:

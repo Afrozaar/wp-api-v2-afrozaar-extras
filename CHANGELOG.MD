@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25
+- Added hooks to create and delete DynamoDB entries for Post markers
+
 ## 0.24
 - Added logic to add user to site if user already exists on another multi site
 

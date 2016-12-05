@@ -56,6 +56,13 @@
 				</tr>
 
 				<tr valign="top">
+					<th width="33%" scope="row"><?php _e( 'DynamoDB MojoSite config:', 'afrozaar_extras' ); ?></th>
+					<td>
+						<input type="text" name="mojo_site" value="<?php echo $this->get_mojo_site() // xss ok; ?>" size="50" autocomplete="off" />
+					</td>
+				</tr>
+
+				<tr valign="top">
 					<th colspan="2" scope="row">
 						<button type="submit" class="button button-primary"><?php _e( 'Save Changes', 'afrozaar_extras' ); ?></button>
 						<?php if ( $this->get_access_key_id() || $this->get_secret_access_key() ) : ?>
