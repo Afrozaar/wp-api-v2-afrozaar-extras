@@ -1,4 +1,8 @@
 # Changelog
+
+## 0.27
+- Added check for empty key on meta delete
+
 ## 0.26
 - Added hook to removed Baobab ingested meta object on post updated
 

@@ -333,11 +333,16 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 		if (!$is_new_post) {
 
-			//error_log('===================== not a new post; delete post meta');
+			$config_key = $this->get_baobab_meta_key();
 
-			$return = delete_post_meta($post_id, $this->get_baobab_meta_key(), '');
+			if ( !empty($config_key) ) {
 
-			//error_log('===================== return value : ' . $return);
+					//error_log('==================== key not empty deleting');
+
+					$return = delete_post_meta($post_id, $config_key, '');
+			} else {
+				//error_log('==================== key EMPTY');
+			}
 	  }
 	}
 
