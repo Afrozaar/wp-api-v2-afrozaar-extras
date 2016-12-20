@@ -135,7 +135,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		// Make sure $this->settings has been loaded
 		$this->get_settings();
 
-		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic', 'comment_post_topic', 'mojo_site' );
+		$post_vars = array( 'access_key_id', 'secret_access_key', 'aws_region', 'new_post_topic', 'updated_post_topic', 'comment_post_topic', 'mojo_site', 'baobab_meta_key' );
 		foreach ( $post_vars as $var ) {
 			if ( ! isset( $_POST[ $var ] ) ) { // input var okay
 				continue;
@@ -252,6 +252,10 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		return $this->get_setting( 'mojo_site' );
 	}
 
+	function get_baobab_meta_key() {
+		return $this->get_setting( 'baobab_meta_key' );
+	}
+
 	/**
 	 * Instantiate a new AWS service client for the AWS SDK
 	 * using the defined AWS key and secret
@@ -326,6 +330,15 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
 
 		$this->amazon_add_map_marker( $post_id, $post->post_date, $post->post_title, $user->display_name );
+
+		if (!$is_new_post) {
+
+			//error_log('===================== not a new post; delete post meta');
+
+			$return = delete_post_meta($post_id, $this->get_baobab_meta_key(), '');
+
+			//error_log('===================== return value : ' . $return);
+	  }
 	}
 
 	/**
@@ -519,7 +532,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 	}
 
 	/**
-	* Gets Topic name from ARN 
+	* Gets Topic name from ARN
 	*/
 	function getTopicNameFromArn($topic_arn) {
 

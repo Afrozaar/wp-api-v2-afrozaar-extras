@@ -1,4 +1,6 @@
 # Changelog
+## 0.26
+- Added hook to removed Baobab ingested meta object on post updated
 
 ## 0.25
 - Added hooks to create and delete DynamoDB entries for Post markers
