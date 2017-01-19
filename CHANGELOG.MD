@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.28
+- Moved meta delete function into it's own hook
+
 ## 0.27
 - Added check for empty key on meta delete
 

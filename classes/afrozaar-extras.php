@@ -76,6 +76,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 
 		add_action('deleted_post_meta', array( $this, 'hook_delete_meta_data' ), 10, 4);
 
+		add_action('publish_post', array( $this, 'hook_delete_meta_value' ), 10, 2);
 	}
 
 	function admin_menu() {
@@ -330,6 +331,16 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
 
 		$this->amazon_add_map_marker( $post_id, $post->post_date, $post->post_title, $user->display_name );
+	}
+
+	function hook_delete_meta_value( $post_id, $post ) {
+
+		// Checks whether is post updated or published at first time.
+	  if ($post->post_date != $post->post_modified) {
+			$is_new_post = false;
+	  } else {
+			$is_new_post = true;
+	  }
 
 		if (!$is_new_post) {
 
