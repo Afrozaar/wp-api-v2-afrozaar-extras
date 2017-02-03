@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.29
+- Added hook to remove post map from AWS when status changes to Private
+
 ## 0.28
 - Moved meta delete function into it's own hook
 

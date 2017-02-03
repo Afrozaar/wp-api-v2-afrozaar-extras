@@ -77,6 +77,8 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		add_action('deleted_post_meta', array( $this, 'hook_delete_meta_data' ), 10, 4);
 
 		add_action('publish_post', array( $this, 'hook_delete_meta_value' ), 10, 2);
+
+		add_action( 'post_updated', array( $this, 'hook_post_updated' ), 10, 3 );
 	}
 
 	function admin_menu() {
@@ -331,6 +333,17 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		$this->amazonSnsPush($alert, $msg_encoded, $topic_arn);
 
 		$this->amazon_add_map_marker( $post_id, $post->post_date, $post->post_title, $user->display_name );
+	}
+
+	function hook_post_updated( $post_id, $post_after, $post_before ) {
+			if ( 'publish' === $post_before->post_status  && 'private' === $post_after->post_status ) {
+
+				$location_meta = get_post_meta($post_id, 'az_address', true);
+
+				if (!empty($location_meta)) {
+					$this->amazon_remove_map_marker($post_id);
+				}
+			}
 	}
 
 	function hook_delete_meta_value( $post_id, $post ) {
