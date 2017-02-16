@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.30
+- Updated msg for iOS comment notification
+
 ## 0.29
 - Added hook to remove post map from AWS when status changes to Private
 

@@ -335,8 +335,10 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 		$this->amazon_add_map_marker( $post_id, $post->post_date, $post->post_title, $user->display_name );
 	}
 
-	function hook_post_updated( $post_id, $post_after, $post_before ) {
+	function hook_post_updated( $post_ID, $post_after, $post_before ) {
 			if ( 'publish' === $post_before->post_status  && 'private' === $post_after->post_status ) {
+
+				error_log('============================ post was made private from public');
 
 				$location_meta = get_post_meta($post_id, 'az_address', true);
 
@@ -513,7 +515,7 @@ class Afrozaar_Aws_Extras extends Afro_Plugin_Base {
 				$user = get_userdata( $post->post_author );
 
 				$msg_encoded = '\"msgType\":\"' . self::PUSH_TYPE_COMMENT . '\",\"postId\":' . $comment->comment_post_ID . ',\"author\":\"' . $user->display_name . '\",\"authorId\":' . $user->ID . ',\"msgText\":\"' . $comment->comment_content . '\"';
-				$alert = "bla";
+				$alert = 'New comment : ' . $user->display_name . ' - ' . $comment->comment_content;
 
 				$this->amazonSnsPush($alert, $msg_encoded, $topic_arn_comment);
     	}
