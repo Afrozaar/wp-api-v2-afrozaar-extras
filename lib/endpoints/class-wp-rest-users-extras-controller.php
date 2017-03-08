@@ -56,13 +56,15 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
     }
 
     if ($is_valid_for_site == false) {
-        $blog_details = get_blog_details($_SERVER['SERVER_NAME']);
+        return new WP_Error( 'rest_user_invalid_site', __( 'User not allowed for site.'), array( 'status' => 404 ) );
 
-        $blogid = $blog_details->blog_id;
-        $role = 'author';
-        if (! add_user_to_blog( $blogid, $user_id, $role ) ) {
-          return new WP_Error( 'rest_user_invalid_site', __( 'User not allowed for site.'), array( 'status' => 404 ) );
-        }
+        //$blog_details = get_blog_details($_SERVER['SERVER_NAME']);
+
+        //$blogid = $blog_details->blog_id;
+        //$role = 'author';
+        //if (! add_user_to_blog( $blogid, $user_id, $role ) ) {
+        //  return new WP_Error( 'rest_user_invalid_site', __( 'User not allowed for site.'), array( 'status' => 404 ) );
+        //}
     }
 
 		$user = $this->prepare_item_for_response( $user, $request );
@@ -127,7 +129,7 @@ class WP_REST_Users_Extras_Controller extends WP_REST_Controller {
 
 		// Wrap the data in a response object
 		$response = rest_ensure_response( $data );
-    
+
 		/**
 		 * Filter user data returned from the REST API.
 		 *

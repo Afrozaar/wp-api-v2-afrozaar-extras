@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.31
+- Removed adding users to blog automatically
+
 ## 0.30
 - Updated msg for iOS comment notification
 

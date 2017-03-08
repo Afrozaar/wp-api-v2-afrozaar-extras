@@ -10,7 +10,6 @@
     * Register the routes for the objects of the controller.
     */
     public function register_routes() {
-
         register_rest_route( $this->namespace, '/posts/stream', array(
           'methods'         => WP_REST_Server::READABLE,
     			'callback'        => array( $this, 'get_items_after_date' ),
