@@ -3,18 +3,12 @@
   /*
   * Plugin Name: WP REST Api Extras
   * Description:  Adds extra WP REST Api calls
-  * Version:  0.31
+  * Version:  0.32
   * Author: Jan-Louis Crafford, Afrozaar Consulting
   * Plugin URI: https://github.com/Afrozaar/wp-api-v2-afrozaar-extras
   */
 
 include_once ABSPATH.'wp-admin/includes/plugin.php';
-
-if (!is_plugin_active('rest-api/plugin.php')) {
-    add_action('admin_notices', 'pim_draw_notice_rest_api');
-
-    return;
-}
 
 require_once dirname(__FILE__).'/lib/endpoints/class-wp-rest-users-extras-controller.php';
 require_once dirname(__FILE__).'/lib/endpoints/class-wp-rest-media-extras-controller.php';

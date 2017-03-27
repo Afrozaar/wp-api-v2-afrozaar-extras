@@ -10,20 +10,21 @@
     * Register the routes for the objects of the controller.
     */
     public function register_routes() {
-        register_rest_route( $this->namespace, '/posts/stream', array(
+        $version = '2';
+        $namespace = 'wp/v' . $version;
+
+        register_rest_route( $namespace, '/posts/stream', array(
           'methods'         => WP_REST_Server::READABLE,
     			'callback'        => array( $this, 'get_items_after_date' ),
-          'permission_callback' => array( $this, 'get_item_permissions_check' ),
     			'args'            => array(
     				'context'          => $this->get_context_param( array( 'default' => 'embed' ) ),
     			),
     			'schema' => array( $this, 'get_public_item_schema' ),
     		));
 
-        register_rest_route( $this->namespace, '/posts/stream/(?P<date>[\S-]+)', array(
+        register_rest_route( $namespace, '/posts/stream/(?P<date>[\S-]+)', array(
           'methods'         => WP_REST_Server::READABLE,
     			'callback'        => array( $this, 'get_items_after_date' ),
-          'permission_callback' => array( $this, 'get_item_permissions_check' ),
     			'args'            => array(
     				'context'          => $this->get_context_param( array( 'default' => 'embed' ) ),
     			),
@@ -50,12 +51,6 @@
   		if ( isset( $request['after'] ) ) {
   			$args['date_query'][0]['after'] = $request['after'];
   		}
-
-      //$date_requested = $request['date'];
-
-      //if ( ! empty( $date_requested ) ) {
-      //  $args['date_query'][0]['after'] = $date_requested;
-      //}
 
       $args = apply_filters( "rest_post_query", $args, $request );
       $query_args = $this->prepare_items_query( $args, $request );
@@ -111,7 +106,6 @@
   	 * @return WP_REST_Response Response data.
   	 */
   	public function prepare_custom_item_for_response( $post, $request ) {
-
       $schema = $this->get_item_schema();
 
   		// Base fields for every post.
@@ -186,8 +180,6 @@
         'post__in'        => $data['id'],
       );
 
-      //$prepared_args = apply_filters( 'rest_comment_query', $prepared_args, $request );
-
       $query = new WP_Comment_Query;
       $query_result = $query->query( $prepared_args );
 
@@ -201,9 +193,7 @@
         $comments[] = $this->prepare_response_for_collection( $comment_data );
       }
 
-      //if ( !empty( $comments ) ) {
-          $data['comments'] = $comments;
-      //}
+      $data['comments'] = $comments;
 
       // Wrap the data in a response object.
   		$response = rest_ensure_response( $data );

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.32
+- Updated plugin to work with new WP versions that has rest-api included
+
 ## 0.31
 - Removed adding users to blog automatically
 
