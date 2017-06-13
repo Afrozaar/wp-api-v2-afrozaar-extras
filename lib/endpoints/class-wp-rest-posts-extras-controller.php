@@ -171,6 +171,8 @@
           $data['audio_count'] = $row->meta_value;
         } else if ( hash_equals($key, 'az_address') ) {
           $data['location_count'] = 1;
+        } else if ( hash_equals($key, 'live_stream_id') ) {
+          $data['live_stream'] = 1;
         }
   		}
 

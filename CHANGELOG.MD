@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.34
+- Added live stream Meta object check to stream
+
+## 0.33
+- Added kses tags for iframe
+
 ## 0.32
 - Updated plugin to work with new WP versions that has rest-api included
 
